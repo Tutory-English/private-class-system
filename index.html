@@ -2105,20 +2105,22 @@ document.getElementById('addProfileModal').addEventListener('click', e => {
 });
 
 (async function bootstrap() {
-  // Check URL params or current profile
   const urlParams = new URLSearchParams(window.location.search);
   const hasUrlIdentity = urlParams.get('role') || urlParams.get('name');
   const currentProfile = getCurrentProfile();
 
+  // Show picker FIRST (sebelum init) kalau belum ada identity
+  if (!hasUrlIdentity && !currentProfile) {
+    showProfilePicker();
+  }
+
   if (hasUrlIdentity) {
-    // URL-based identity (from direct link) — bypass picker
     loadSettings();
     updateConnUI();
     await initConnection();
     await loadStudents();
     renderAll();
   } else if (currentProfile) {
-    // Already selected profile previously — use that
     const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
     settings.role = currentProfile.role;
     settings.userName = currentProfile.name;
@@ -2129,13 +2131,12 @@ document.getElementById('addProfileModal').addEventListener('click', e => {
     await loadStudents();
     renderAll();
   } else {
-    // First visit — show profile picker
+    // Picker udah muncul di atas, init di background
     loadSettings();
     updateConnUI();
     await initConnection();
     await loadStudents();
     renderAll();
-    showProfilePicker();
   }
 })();
 </script>
