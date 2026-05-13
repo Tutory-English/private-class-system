@@ -536,7 +536,7 @@
       <div class="section-header">
         <div class="section-title">TA - Manage Class Records</div>
       </div>
-      <div class="info-box">Data dasar dari Admin (read-only). TA mengisi: Placement Test, Post Test 1/2/3, Class Report, dan Reenroll Status.</div>
+      <div class="info-box">Hanya menampilkan murid dengan <strong>status "Goal"</strong> dari Admin. Prospek (hot/warm/cold/no) tetap di Admin Database. TA mengisi: Placement Test, Post Test 1/2/3, Class Report, Reenroll Status, dan Class Notes.</div>
 
       <div class="controls">
         <input type="text" id="taSearchInput" placeholder="Cari nama..." style="flex:1; min-width:200px;" oninput="renderTaTable()" />
@@ -1555,6 +1555,8 @@ function renderTaTable() {
       if (s.reenroll) return false;
     } else if (fr && (s.reenroll || '') !== fr) return false;
     if (fcs && s.classStatus !== fcs) return false;
+    // Hanya tampilkan murid yang udah goal (jadi murid aktif)
+    if (s.status !== 'goal') return false;
     return true;
   }).sort((a,b) => {
     // Entry baru (id timestamp) di atas, seed data di bawah
