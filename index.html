@@ -384,6 +384,34 @@
       <div class="section-title" style="margin-bottom:14px;">Payment Status (Murid bulan ini)</div>
       <div class="breakdown" id="paymentBreakdown"></div>
     </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Class Type Breakdown (Murid bulan ini)</div>
+        <div class="hint">Klik card untuk lihat list student-nya</div>
+      </div>
+      <div class="breakdown" id="classTypeBreakdown" style="margin-bottom:18px;"></div>
+      <div id="classTypeStudentList" style="display:none;">
+        <div style="font-weight:600; font-size:14px; margin-bottom:10px;" id="classTypeListTitle"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Student #</th>
+                <th>Name</th>
+                <th>Program Detail</th>
+                <th>Teacher</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Payment</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody id="classTypeListBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ===================== ADMIN DATABASE ===================== -->
@@ -530,14 +558,15 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Program</th>
+              <th>Class Type</th>
               <th>Teacher</th>
               <th>Start</th>
               <th>End</th>
-              <th>Placement</th>
-              <th>PT 1</th>
-              <th>PT 2</th>
-              <th>PT 3</th>
+              <th>Placement<br><span style="font-weight:400; text-transform:none; letter-spacing:0;">(date / score)</span></th>
+              <th>PT 1<br><span style="font-weight:400; text-transform:none; letter-spacing:0;">(date / score)</span></th>
+              <th>PT 2<br><span style="font-weight:400; text-transform:none; letter-spacing:0;">(date / score)</span></th>
+              <th>PT 3<br><span style="font-weight:400; text-transform:none; letter-spacing:0;">(date / score)</span></th>
+              <th>Report</th>
               <th>Reenroll</th>
               <th>Action</th>
             </tr>
@@ -590,13 +619,24 @@
         <input type="text" id="f_studentNumber" placeholder="PVT-S-2026-001" />
       </div>
       <div>
-        <label>Program / Class Type</label>
-        <input type="text" id="f_classType" placeholder="e.g. 20HRS - PVT - S" />
+        <label>Class Type *</label>
+        <select id="f_classType">
+          <option value="">- Pilih -</option>
+          <option value="Private">Private</option>
+          <option value="Semi private">Semi private</option>
+          <option value="Group class">Group class</option>
+          <option value="Bootcamp">Bootcamp</option>
+        </select>
+      </div>
+      <div>
+        <label>Program Detail</label>
+        <input type="text" id="f_programDetail" placeholder="e.g. 20HRS - PVT - S" />
       </div>
       <div>
         <label>Teacher</label>
         <input type="text" id="f_teacher" placeholder="Nama guru" />
       </div>
+      <div></div>
       <div>
         <label>Class Status</label>
         <select id="f_classStatus">
@@ -719,29 +759,43 @@
       <div style="font-size:13px; color:#6b7280; margin-top:4px;" id="ta_meta"></div>
     </div>
 
-    <div class="form-group-title">Tests</div>
+    <div class="form-group-title">Tests (Date &amp; Score)</div>
     <div class="form-grid">
       <div>
-        <label>Placement Test</label>
+        <label>Placement Test — Date</label>
         <input type="date" id="ta_placementTest" />
       </div>
-      <div></div>
       <div>
-        <label>Post Test 1</label>
+        <label>Placement Test — Score</label>
+        <input type="text" id="ta_placementTestScore" placeholder="e.g. 6.5 / 75" />
+      </div>
+      <div>
+        <label>Post Test 1 — Date</label>
         <input type="date" id="ta_postTest1" />
       </div>
       <div>
-        <label>Post Test 2</label>
+        <label>Post Test 1 — Score</label>
+        <input type="text" id="ta_postTest1Score" placeholder="e.g. 6.5 / 75" />
+      </div>
+      <div>
+        <label>Post Test 2 — Date</label>
         <input type="date" id="ta_postTest2" />
       </div>
       <div>
-        <label>Post Test 3</label>
+        <label>Post Test 2 — Score</label>
+        <input type="text" id="ta_postTest2Score" placeholder="e.g. 6.5 / 75" />
+      </div>
+      <div>
+        <label>Post Test 3 — Date</label>
         <input type="date" id="ta_postTest3" />
       </div>
-      <div></div>
+      <div>
+        <label>Post Test 3 — Score</label>
+        <input type="text" id="ta_postTest3Score" placeholder="e.g. 6.5 / 75" />
+      </div>
     </div>
 
-    <div class="form-group-title">Reenroll & Report</div>
+    <div class="form-group-title">Reenroll &amp; Class Report</div>
     <div class="form-grid">
       <div>
         <label>Reenroll Status</label>
@@ -753,8 +807,17 @@
       </div>
       <div></div>
       <div class="full">
-        <label>Class Report</label>
-        <textarea id="ta_report" rows="4" style="width:100%; resize:vertical;" placeholder="Catatan progress, hasil, feedback..."></textarea>
+        <label>Class Report (upload file, max 1MB)</label>
+        <input type="file" id="ta_reportFile" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg" onchange="handleReportUpload(event)" />
+        <div id="ta_reportInfo" style="margin-top:8px; font-size:13px;"></div>
+      </div>
+    </div>
+
+    <div class="form-group-title">Class Notes</div>
+    <div class="form-grid">
+      <div class="full">
+        <label>Notes (jadwal test, catatan progress, dll)</label>
+        <textarea id="ta_classNotes" rows="3" style="width:100%; resize:vertical;" placeholder="e.g. Post Test 1 dijadwalkan tgl 25 Jan 2026, student request review tambahan..."></textarea>
       </div>
     </div>
 
@@ -836,18 +899,65 @@ let isOnline = false;
 let userRole = '';
 let userName = '';
 
+function migrateClassType(oldStr) {
+  if (!oldStr) return { classType: '', programDetail: '' };
+  const ct = String(oldStr).toUpperCase();
+  if (['Private','Semi private','Group class','Bootcamp'].includes(oldStr)) {
+    return { classType: oldStr, programDetail: '' };
+  }
+  if (ct.includes('PVTBOOST') || ct.includes('BOOTCAMP') || ct.includes('BOOST')) {
+    return { classType: 'Bootcamp', programDetail: oldStr };
+  }
+  if (ct.includes('SEMI')) return { classType: 'Semi private', programDetail: oldStr };
+  if (ct.includes('GROUP')) return { classType: 'Group class', programDetail: oldStr };
+  if (ct.includes('PVT') || ct.includes('PRIVATE')) {
+    return { classType: 'Private', programDetail: oldStr };
+  }
+  return { classType: 'Private', programDetail: oldStr };
+}
+
+function migrateStudent(s) {
+  const out = { ...s };
+  // Migrate classType + programDetail
+  if (out.programDetail === undefined) {
+    const mig = migrateClassType(out.classType);
+    out.classType = mig.classType;
+    out.programDetail = mig.programDetail;
+  }
+  // Default new fields
+  if (out.classNotes === undefined) out.classNotes = '';
+  if (out.placementTestScore === undefined) out.placementTestScore = '';
+  if (out.postTest1Score === undefined) out.postTest1Score = '';
+  if (out.postTest2Score === undefined) out.postTest2Score = '';
+  if (out.postTest3Score === undefined) out.postTest3Score = '';
+  // Report can be string (legacy) or {name, type, data} (new)
+  if (typeof out.report === 'string' && out.report) {
+    // Keep as legacy string, but convert to object structure for consistency
+    // We'll handle display in render
+  }
+  return out;
+}
+
 function buildSeed() {
-  return SEED.map((s, i) => ({
-    id: 's_seed_' + String(i+1).padStart(3,'0'),
-    status: 'goal',
-    dateChat: s.start || '',
-    notes: '',
-    placementTest: '',
-    postTest1: '', postTest2: '', postTest3: '',
-    report: '',
-    reenroll: '',
-    ...s
-  }));
+  return SEED.map((s, i) => {
+    const mig = migrateClassType(s.classType);
+    return {
+      id: 's_seed_' + String(i+1).padStart(3,'0'),
+      status: 'goal',
+      dateChat: s.start || '',
+      notes: '',
+      classNotes: '',
+      placementTest: '', placementTestScore: '',
+      postTest1: '', postTest1Score: '',
+      postTest2: '', postTest2Score: '',
+      postTest3: '', postTest3Score: '',
+      report: '',
+      reenroll: '',
+      ...s,
+      classType: mig.classType,
+      programDetail: mig.programDetail,
+    };
+  });
 }
 
 function loadSettings() {
@@ -933,7 +1043,7 @@ async function loadStudents() {
   if (isOnline && sbClient) {
     const { data, error } = await sbClient.from('students').select('*').order('id');
     if (!error && data) {
-      students = data.map(r => ({ id: r.id, ...(r.data || {}) }));
+      students = data.map(r => migrateStudent({ id: r.id, ...(r.data || {}) }));
       // Mirror to localStorage for offline view
       localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
       return;
@@ -941,11 +1051,55 @@ async function loadStudents() {
   }
   const cached = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
   if (cached) {
-    students = cached;
+    students = cached.map(migrateStudent);
   } else {
     students = buildSeed();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
   }
+}
+
+/* ===================== FILE UPLOAD HELPER ===================== */
+let pendingReportFile = null; // {name, type, data} buffered before save
+
+function handleReportUpload(event) {
+  const file = event.target.files[0];
+  if (!file) { pendingReportFile = null; return; }
+  const MAX = 1024 * 1024; // 1MB
+  if (file.size > MAX) {
+    alert('File terlalu besar. Maksimal 1 MB. Untuk file lebih besar, upload ke Google Drive dan paste link di Class Notes.');
+    event.target.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    pendingReportFile = {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      data: e.target.result // base64 data URL
+    };
+    document.getElementById('ta_reportInfo').innerHTML =
+      `<span style="color:var(--primary-darker);">📎 File baru ready: <strong>${escapeHtml(file.name)}</strong> (${(file.size/1024).toFixed(0)} KB) — klik Save untuk upload</span>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function downloadReport(id) {
+  const s = students.find(x => x.id === id);
+  if (!s || !s.report) return;
+  if (typeof s.report === 'object' && s.report.data) {
+    const a = document.createElement('a');
+    a.href = s.report.data;
+    a.download = s.report.name || 'class-report';
+    a.click();
+  }
+}
+
+function removeReport() {
+  if (!confirm('Hapus file class report?')) return;
+  pendingReportFile = { __remove: true };
+  document.getElementById('ta_reportInfo').innerHTML =
+    `<span style="color:#b91c1c;">⚠️ Class report akan dihapus saat Save</span>`;
 }
 
 async function upsertStudent(student) {
@@ -1015,6 +1169,21 @@ function uid() {
   return 's_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
 }
 
+function getNextStudentNumber() {
+  // Cari nomor terakhir dari semua studentNumber yang ada
+  const numbers = students
+    .map(s => s.studentNumber || '')
+    .map(sn => {
+      const match = sn.match(/(\d+)\s*$/);
+      return match ? parseInt(match[1], 10) : 0;
+    })
+    .filter(n => !isNaN(n) && n > 0);
+  const max = numbers.length ? Math.max(...numbers) : 0;
+  const next = String(max + 1).padStart(3, '0');
+  const year = new Date().getFullYear();
+  return `PVT-${year}-${next}`;
+}
+
 function fmt(d) {
   if (!d) return '-';
   const dt = new Date(d);
@@ -1052,6 +1221,7 @@ function openModal(id) {
     setVal('f_status', s.status || 'hot prospect');
     setVal('f_studentNumber', s.studentNumber);
     setVal('f_classType', s.classType);
+    setVal('f_programDetail', s.programDetail);
     setVal('f_teacher', s.teacher);
     setVal('f_classStatus', s.classStatus);
     setVal('f_start', s.start);
@@ -1062,13 +1232,16 @@ function openModal(id) {
     setVal('f_notes', s.notes);
   } else {
     document.getElementById('modalTitle').textContent = 'Tambah Murid / Prospek';
-    ['f_id','f_name','f_wa','f_studentNumber','f_classType','f_teacher','f_start','f_end','f_amount','f_notes']
+    ['f_id','f_name','f_wa','f_programDetail','f_teacher','f_start','f_end','f_amount','f_notes']
       .forEach(k => setVal(k, ''));
     setVal('f_status', 'hot prospect');
+    setVal('f_classType', '');
     setVal('f_classStatus', '');
     setVal('f_paymentType', '');
     setVal('f_payment', '');
     setVal('f_dateChat', new Date().toISOString().slice(0,10));
+    // Auto-generate Student Number berdasarkan nomor terakhir
+    setVal('f_studentNumber', getNextStudentNumber());
   }
 }
 function closeModal() {
@@ -1087,7 +1260,8 @@ async function saveStudent() {
     name, wa, dateChat,
     status: document.getElementById('f_status').value,
     studentNumber: document.getElementById('f_studentNumber').value.trim(),
-    classType: document.getElementById('f_classType').value.trim(),
+    classType: document.getElementById('f_classType').value,
+    programDetail: document.getElementById('f_programDetail').value.trim(),
     teacher: document.getElementById('f_teacher').value.trim(),
     classStatus: document.getElementById('f_classStatus').value,
     start: document.getElementById('f_start').value,
@@ -1108,8 +1282,11 @@ async function saveStudent() {
     target = {
       id: uid(),
       ...data,
-      placementTest:'', postTest1:'', postTest2:'', postTest3:'',
-      report:'', reenroll:''
+      placementTest:'', placementTestScore:'',
+      postTest1:'', postTest1Score:'',
+      postTest2:'', postTest2Score:'',
+      postTest3:'', postTest3Score:'',
+      report:'', reenroll:'', classNotes:''
     };
     students.push(target);
   }
@@ -1128,17 +1305,37 @@ async function deleteStudent(id) {
 function openTaModal(id) {
   const s = students.find(x => x.id === id);
   if (!s) return;
+  pendingReportFile = null; // Reset
   document.getElementById('taModal').classList.add('active');
   document.getElementById('ta_id').value = s.id;
   document.getElementById('ta_name').textContent = (s.studentNumber ? `[${s.studentNumber}] ` : '') + s.name;
   document.getElementById('ta_meta').textContent =
-    `${s.classType || '-'} • ${s.teacher || 'no teacher'} • ${fmt(s.start)} → ${fmt(s.end)}`;
+    `${s.classType || '-'}${s.programDetail ? ' (' + s.programDetail + ')' : ''} • ${s.teacher || 'no teacher'} • ${fmt(s.start)} → ${fmt(s.end)}`;
   document.getElementById('ta_placementTest').value = s.placementTest || '';
+  document.getElementById('ta_placementTestScore').value = s.placementTestScore || '';
   document.getElementById('ta_postTest1').value = s.postTest1 || '';
+  document.getElementById('ta_postTest1Score').value = s.postTest1Score || '';
   document.getElementById('ta_postTest2').value = s.postTest2 || '';
+  document.getElementById('ta_postTest2Score').value = s.postTest2Score || '';
   document.getElementById('ta_postTest3').value = s.postTest3 || '';
+  document.getElementById('ta_postTest3Score').value = s.postTest3Score || '';
   document.getElementById('ta_reenroll').value = s.reenroll || '';
-  document.getElementById('ta_report').value = s.report || '';
+  document.getElementById('ta_classNotes').value = s.classNotes || '';
+  document.getElementById('ta_reportFile').value = '';
+  // Show existing report info
+  const info = document.getElementById('ta_reportInfo');
+  if (s.report && typeof s.report === 'object' && s.report.name) {
+    info.innerHTML =
+      `<span style="color:#065f46;">📎 File saat ini: <strong>${escapeHtml(s.report.name)}</strong> (${(s.report.size/1024).toFixed(0)} KB)</span>
+       <button type="button" class="btn btn-secondary btn-sm" style="margin-left:10px;" onclick="downloadReport('${s.id}')">Download</button>
+       <button type="button" class="btn btn-danger btn-sm" style="margin-left:6px;" onclick="removeReport()">Hapus</button>`;
+  } else if (typeof s.report === 'string' && s.report) {
+    info.innerHTML =
+      `<span style="color:#6b7280;">📝 Old text report: <em>${escapeHtml(s.report.slice(0, 100))}${s.report.length > 100 ? '…' : ''}</em></span>
+       <button type="button" class="btn btn-danger btn-sm" style="margin-left:10px;" onclick="removeReport()">Hapus</button>`;
+  } else {
+    info.innerHTML = `<span style="color:#9ca3af;">Belum ada file. Pilih file di atas untuk upload.</span>`;
+  }
 }
 function closeTaModal() {
   document.getElementById('taModal').classList.remove('active');
@@ -1148,12 +1345,25 @@ async function saveTa() {
   const idx = students.findIndex(x => x.id === id);
   if (idx < 0) return;
   students[idx].placementTest = document.getElementById('ta_placementTest').value;
+  students[idx].placementTestScore = document.getElementById('ta_placementTestScore').value.trim();
   students[idx].postTest1 = document.getElementById('ta_postTest1').value;
+  students[idx].postTest1Score = document.getElementById('ta_postTest1Score').value.trim();
   students[idx].postTest2 = document.getElementById('ta_postTest2').value;
+  students[idx].postTest2Score = document.getElementById('ta_postTest2Score').value.trim();
   students[idx].postTest3 = document.getElementById('ta_postTest3').value;
+  students[idx].postTest3Score = document.getElementById('ta_postTest3Score').value.trim();
   students[idx].reenroll = document.getElementById('ta_reenroll').value;
-  students[idx].report = document.getElementById('ta_report').value;
+  students[idx].classNotes = document.getElementById('ta_classNotes').value.trim();
+  // Handle file upload
+  if (pendingReportFile) {
+    if (pendingReportFile.__remove) {
+      students[idx].report = '';
+    } else {
+      students[idx].report = pendingReportFile;
+    }
+  }
   await upsertStudent(students[idx]);
+  pendingReportFile = null;
   closeTaModal();
   renderAll();
 }
@@ -1225,7 +1435,10 @@ function renderAdminTable() {
       <td><span class="mono">${escapeHtml(s.studentNumber || '-')}</span></td>
       <td><strong>${escapeHtml(s.name)}</strong></td>
       <td>${escapeHtml(s.wa)}</td>
-      <td>${escapeHtml(s.classType || '-')}</td>
+      <td>
+        <div>${escapeHtml(s.classType || '-')}</div>
+        ${s.programDetail ? `<div class="mono" style="margin-top:2px;">${escapeHtml(s.programDetail)}</div>` : ''}
+      </td>
       <td>${escapeHtml(s.teacher || '-')}</td>
       <td>${fmt(s.start)}</td>
       <td>${fmt(s.end)}</td>
@@ -1283,6 +1496,51 @@ function renderAdminDash() {
       <div class="label">${p}</div>
     </div>`;
   }).join('');
+
+  // Class Type breakdown (murid yang start di bulan ini per kategori)
+  const classTypes = ['Private', 'Semi private', 'Group class', 'Bootcamp'];
+  const ctColors = {
+    'Private':'#3060f3', 'Semi private':'#8b5cf6',
+    'Group class':'#f59e0b', 'Bootcamp':'#10b981'
+  };
+  document.getElementById('classTypeBreakdown').innerHTML = classTypes.map(ct => {
+    const c = startedThisMonth.filter(s => s.classType === ct).length;
+    return `<div class="breakdown-item" style="cursor:pointer;" onclick="showClassTypeStudents('${ct}')">
+      <div class="count" style="color:${ctColors[ct]}">${c}</div>
+      <div class="label">${ct}</div>
+    </div>`;
+  }).join('');
+
+  // Hide student list initially
+  document.getElementById('classTypeStudentList').style.display = 'none';
+}
+
+function showClassTypeStudents(classType) {
+  const ym = document.getElementById('adminMonth').value;
+  const startedThisMonth = students.filter(s => inMonth(s.start, ym));
+  const filtered = startedThisMonth.filter(s => s.classType === classType);
+  document.getElementById('classTypeListTitle').textContent =
+    `${classType} — ${filtered.length} murid (bulan ini)`;
+  const tbody = document.getElementById('classTypeListBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="empty">Belum ada murid di kategori ini bulan ini.</td></tr>`;
+  } else {
+    tbody.innerHTML = filtered.map(s => `
+      <tr>
+        <td><span class="mono">${escapeHtml(s.studentNumber || '-')}</span></td>
+        <td><strong>${escapeHtml(s.name)}</strong></td>
+        <td>${escapeHtml(s.programDetail || '-')}</td>
+        <td>${escapeHtml(s.teacher || '-')}</td>
+        <td>${fmt(s.start)}</td>
+        <td>${fmt(s.end)}</td>
+        <td>${payBadge(s.payment)}</td>
+        <td>${escapeHtml(s.amount || '-')}</td>
+      </tr>
+    `).join('');
+  }
+  document.getElementById('classTypeStudentList').style.display = 'block';
+  // Scroll into view
+  document.getElementById('classTypeStudentList').scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
 
 /* ===================== TA TABLE ===================== */
@@ -1297,32 +1555,52 @@ function renderTaTable() {
       if (s.reenroll) return false;
     } else if (fr && (s.reenroll || '') !== fr) return false;
     if (fcs && s.classStatus !== fcs) return false;
-    // Hanya tampilkan yang sudah jadi student (goal)
-    if (s.status !== 'goal') return false;
     return true;
-  }).sort((a,b) => (b.start || '').localeCompare(a.start || ''));
+  }).sort((a,b) => {
+    // Entry baru (id timestamp) di atas, seed data di bawah
+    const aIsSeed = (a.id || '').startsWith('s_seed_');
+    const bIsSeed = (b.id || '').startsWith('s_seed_');
+    if (aIsSeed !== bIsSeed) return aIsSeed ? 1 : -1;
+    // Sama2 baru: urutkan by id desc (newer first)
+    if (!aIsSeed) return (b.id || '').localeCompare(a.id || '');
+    // Sama2 seed: urutkan by start date desc, empty di bawah
+    if (!a.start && !b.start) return 0;
+    if (!a.start) return 1;
+    if (!b.start) return -1;
+    return (b.start || '').localeCompare(a.start || '');
+  });
 
   if (rows.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="11" class="empty">Belum ada data murid.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="12" class="empty">Belum ada data murid.</td></tr>`;
     return;
   }
-  tbody.innerHTML = rows.map(s => `
+  const testCell = (date, score) => {
+    if (!date && !score) return '-';
+    return `<div style="font-size:12px;">${date ? fmt(date) : '-'}</div>${score ? `<div style="font-size:11px; font-weight:600; color:var(--primary);">${escapeHtml(score)}</div>` : ''}`;
+  };
+  tbody.innerHTML = rows.map(s => {
+    const hasReport = (typeof s.report === 'object' && s.report && s.report.name) || (typeof s.report === 'string' && s.report);
+    return `
     <tr>
       <td><strong>${escapeHtml(s.name)}</strong><br><span class="mono">${escapeHtml(s.studentNumber || '')}</span></td>
-      <td>${escapeHtml(s.classType || '-')}</td>
+      <td>
+        <div>${escapeHtml(s.classType || '-')}</div>
+        ${s.programDetail ? `<div class="mono" style="margin-top:2px;">${escapeHtml(s.programDetail)}</div>` : ''}
+      </td>
       <td>${escapeHtml(s.teacher || '-')}</td>
       <td>${fmt(s.start)}</td>
       <td>${fmt(s.end)}</td>
-      <td>${fmt(s.placementTest)}</td>
-      <td>${fmt(s.postTest1)}</td>
-      <td>${fmt(s.postTest2)}</td>
-      <td>${fmt(s.postTest3)}</td>
+      <td>${testCell(s.placementTest, s.placementTestScore)}</td>
+      <td>${testCell(s.postTest1, s.postTest1Score)}</td>
+      <td>${testCell(s.postTest2, s.postTest2Score)}</td>
+      <td>${testCell(s.postTest3, s.postTest3Score)}</td>
+      <td>${hasReport ? '<span class="badge badge-done">📎 ada</span>' : '<span style="color:#9ca3af;">-</span>'}</td>
       <td>${reBadge(s.reenroll)}</td>
       <td class="actions">
         <button class="btn btn-primary btn-sm" onclick="openTaModal('${s.id}')">Update</button>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 /* ===================== TA DASHBOARD ===================== */
@@ -1380,12 +1658,18 @@ function renderTaDash() {
 /* ===================== EXPORT CSV ===================== */
 function exportCSV() {
   if (!students.length) { alert('Belum ada data.'); return; }
-  const headers = ['Student #','Name','WA','Date Chat','Prospek Status','Program','Teacher','Start','End','Class Status','Payment Type','Payment Status','Amount','Notes','Placement Test','Post Test 1','Post Test 2','Post Test 3','Class Report','Reenroll'];
-  const rows = students.map(s => [
-    s.studentNumber, s.name, s.wa, s.dateChat, s.status, s.classType, s.teacher,
-    s.start, s.end, s.classStatus, s.paymentType, s.payment, s.amount, s.notes,
-    s.placementTest, s.postTest1, s.postTest2, s.postTest3, s.report, s.reenroll
-  ].map(v => `"${String(v || '').replace(/"/g,'""')}"`).join(','));
+  const headers = ['Student #','Name','WA','Date Chat','Prospek Status','Class Type','Program Detail','Teacher','Start','End','Class Status','Payment Type','Payment Status','Amount','Notes','Placement Date','Placement Score','PT1 Date','PT1 Score','PT2 Date','PT2 Score','PT3 Date','PT3 Score','Has Report','Reenroll','Class Notes'];
+  const rows = students.map(s => {
+    const hasReport = (typeof s.report === 'object' && s.report && s.report.name) ? s.report.name :
+                      (typeof s.report === 'string' && s.report) ? 'text-report' : '';
+    return [
+      s.studentNumber, s.name, s.wa, s.dateChat, s.status, s.classType, s.programDetail, s.teacher,
+      s.start, s.end, s.classStatus, s.paymentType, s.payment, s.amount, s.notes,
+      s.placementTest, s.placementTestScore,
+      s.postTest1, s.postTest1Score, s.postTest2, s.postTest2Score, s.postTest3, s.postTest3Score,
+      hasReport, s.reenroll, s.classNotes
+    ].map(v => `"${String(v || '').replace(/"/g,'""')}"`).join(',');
+  });
   const csv = headers.join(',') + '\n' + rows.join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
