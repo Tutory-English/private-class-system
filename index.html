@@ -1305,6 +1305,31 @@ function updateConnUI() {
   } else {
     pill.style.display = 'none';
   }
+  applyRoleVisibility();
+}
+
+function applyRoleVisibility() {
+  const role = userRole;
+  const tabs = document.querySelectorAll('.tab-btn');
+  const visibleTabs = [];
+  tabs.forEach(btn => {
+    const id = btn.dataset.tab;
+    let show = true;
+    if (role === 'Admin') {
+      show = (id === 'admin-dash' || id === 'admin-db');
+    } else if (role === 'TA') {
+      show = (id === 'ta-dash' || id === 'ta-db');
+    }
+    btn.style.display = show ? '' : 'none';
+    if (show) visibleTabs.push(btn);
+  });
+  // If current active tab is hidden, switch to first visible
+  const activeTab = document.querySelector('.tab-btn.active');
+  if (activeTab && activeTab.style.display === 'none' && visibleTabs.length) {
+    visibleTabs[0].click();
+  } else if ((!activeTab || activeTab.style.display === 'none') && visibleTabs.length) {
+    visibleTabs[0].click();
+  }
 }
 
 async function initConnection() {
