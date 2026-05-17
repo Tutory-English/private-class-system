@@ -722,6 +722,7 @@
           <thead>
             <tr>
               <th>Name</th>
+              <th>WA</th>
               <th>Class Type</th>
               <th>Teacher</th>
               <th>Start</th>
@@ -1852,6 +1853,18 @@ function escapeHtml(str) {
   }[m]));
 }
 
+function waLink(wa) {
+  if (!wa) return '';
+  let clean = String(wa).replace(/[^\d]/g, '');
+  if (clean.startsWith('0')) clean = clean.substring(1);
+  // Kalau udah ada country code (62/61/etc), pakai langsung
+  if (clean.startsWith('62') || clean.startsWith('61') || clean.startsWith('65') || clean.startsWith('60')) {
+    return `https://wa.me/${clean}`;
+  }
+  // Default: prepend Indonesia code
+  return `https://wa.me/62${clean}`;
+}
+
 /* ===================== ADMIN DASHBOARD ===================== */
 function renderAdminDash() {
   const ym = document.getElementById('adminMonth').value;
@@ -1965,7 +1978,7 @@ function renderTaTable() {
   });
 
   if (rows.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="12" class="empty">Belum ada data murid.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" class="empty">Belum ada data murid.</td></tr>`;
     return;
   }
   const testCell = (date, score) => {
@@ -1974,9 +1987,14 @@ function renderTaTable() {
   };
   tbody.innerHTML = rows.map(s => {
     const hasReport = (typeof s.report === 'object' && s.report && s.report.name) || (typeof s.report === 'string' && s.report);
+    const waUrl = waLink(s.wa);
     return `
     <tr>
       <td><strong>${escapeHtml(s.name)}</strong><br><span class="mono">${escapeHtml(s.studentNumber || '')}</span></td>
+      <td>
+        ${s.wa ? `<div style="font-size:12px;">${escapeHtml(s.wa)}</div>
+        <a href="${waUrl}" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:4px; padding:3px 8px; background:#25D366; color:#fff; border-radius:6px; font-size:11px; font-weight:600; text-decoration:none; margin-top:4px;">💬 Chat</a>` : '-'}
+      </td>
       <td>
         <div>${escapeHtml(s.classType || '-')}</div>
         ${s.programDetail ? `<div class="mono" style="margin-top:2px;">${escapeHtml(s.programDetail)}</div>` : ''}
